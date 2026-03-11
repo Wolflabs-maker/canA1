@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-BR" style="background-color: #000000;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WOLF LABS // Pitch Black Skill Matrix</title>
+    
+    <!-- BLOQUEIO IMEDIATO DE FUNDO BRANCO -->
+    <!-- Isso impede que a tela pisque branco enquanto o Tailwind carrega -->
+    <style>
+        :root {
+            color-scheme: dark; /* Força barras de rolagem e controles do navegador para o modo escuro */
+        }
+        html, body {
+            background-color: #000000 !important;
+            color: #ececf1 !important;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+    </style>
+
+    <!-- Scripts e Fontes Externas -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Configuração do Tailwind para o Tema Pitch Black -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Outfit"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        pitch: {
+                            900: '#000000', // Preto absoluto
+                            800: '#050505', // Quase preto absoluto
+                            700: '#0a0a0a', // Cinza ultra escuro
+                            600: '#111111', // Cinza muito escuro
+                        },
+                        premium: {
+                            violet: '#7c3aed',
+                            cyan: '#06b6d4',
+                            rose: '#e11d48',
+                            emerald: '#059669',
+                            gold: '#fbbf24'
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow': 'glow 3s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { boxShadow: '0 0 20px rgba(124, 58, 237, 0.1)' },
+                            '100%': { boxShadow: '0 0 40px rgba(124, 58, 237, 0.3)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Barra de Rolagem Invisível/Elegante */
+        ::-webkit-scrollbar { height: 4px; width: 4px; }
+        ::-webkit-scrollbar-track { background: #000000; }
+        ::-webkit-scrollbar-thumb { background-color: #333333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background-color: #555555; }
+
+        /* Cor de Seleção de Texto */
+        ::selection { background-color: #7c3aed; color: #ffffff; }
+
+        /* Animações de Entrada */
+        .fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); filter: blur(8px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        
+        /* Cartões com Fundo Preto/Cinza Ultra Escuro */
+        .glass-panel {
+            background: #000000;
+            border-right: 1px solid #111111;
+        }
+
+        .hero-card {
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            border-top: 1px solid #222222;
+            border-radius: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9);
+        }
+
+        /* Distintivos de Habilidade (Botões de Categoria) */
+        .skill-badge {
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            padding: 14px 24px; 
+            border-radius: 12px; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 14px;
+            font-weight: 300; 
+            font-size: 0.9rem; 
+            cursor: pointer; 
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            color: #a1a1aa;
+        }
+        .skill-badge:hover { 
+            transform: translateY(-4px); 
+            color: #ffffff;
+            background: #0a0a0a;
+            border-color: rgba(124, 58, 237, 0.4);
+            box-shadow: 0 10px 30px -10px rgba(124, 58, 237, 0.3);
+        }
+        .skill-badge i { font-size: 1.1rem; opacity: 0.7; transition: opacity 0.3s; }
+        .skill-badge:hover i { opacity: 1; }
+
+        /* Overlay do Laboratório (Tela modal) */
+        .lab-overlay {
+            position: fixed; inset: 0; 
+            background: rgba(0, 0, 0, 0.98); /* Fundo quase 100% preto sólido */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 100; display: flex; flex-direction: column; align-items: center;
+            opacity: 0; pointer-events: none; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
+            transform: translateY(20px);
+            overflow-y: auto;
+        }
+        .lab-overlay.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .lab-container { width: 100%; max-width: 1100px; min-height: 100%; display: flex; flex-direction: column; padding: 40px 24px; }
+
+        /* Componentes de Exercício */
+        .option-tile {
+            background: #050505; 
+            border: 1px solid #1a1a1a;
+            border-radius: 1rem; padding: 40px 24px; cursor: pointer; 
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 20px;
+        }
+        .option-tile:hover:not(.selected) { 
+            border-color: #333333; 
+            background: #0a0a0a; 
+        }
+        .option-tile.selected { 
+            border-color: #7c3aed; 
+            background: rgba(124, 58, 237, 0.1); 
+            box-shadow: 0 0 30px rgba(124, 58, 237, 0.15), inset 0 0 15px rgba(124, 58, 237, 0.1); 
+        }
+        .option-tile i { font-size: 3rem; color: #333333; transition: all 0.3s; }
+        .option-tile.selected i { color: #7c3aed; }
+
+        .profile-card {
+            background: #050505;
+            border: 1px solid #1a1a1a; 
+            border-radius: 1rem; padding: 40px;
+            width: 100%; max-width: 400px; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.9);
+        }
+        
+        .syntax-word {
+            background: #050505; border: 1px solid #1a1a1a;
+            padding: 16px 32px; border-radius: 8px; font-weight: 400; font-size: 1.125rem;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: inline-block; margin: 6px;
+            color: #a1a1aa; letter-spacing: 0.05em;
+        }
+        .syntax-word:hover { border-color: #333333; color: #ffffff; background: #0a0a0a; }
+        .syntax-word.used { background: #06b6d4; color: #000000; border-color: #06b6d4; }
+
+        .bug-scanner { font-family: 'JetBrains Mono', monospace; font-size: 1.15rem; line-height: 2.5; font-weight: 300; }
+        .bug-word {
+            padding: 6px 12px; margin: 0 2px; border-radius: 4px; cursor: pointer; transition: all 0.2s;
+            border: 1px solid transparent; color: #71717a;
+        }
+        .bug-word:hover { color: #ffffff; background: #0a0a0a; }
+        .bug-word.selected { background: #e11d48; color: #ffffff; box-shadow: 0 0 20px rgba(225, 29, 72, 0.4); }
+
+        /* Botões Principais (Zero Fundo Branco) */
+        .btn-premium {
+            background: #050505;
+            color: #ffffff; 
+            border: 1px solid #333333; 
+            padding: 16px 40px; 
+            border-radius: 8px;
+            font-weight: 500; 
+            font-size: 0.95rem; 
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer; 
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+        }
+        .btn-premium::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.2), transparent);
+            transition: all 0.6s;
+        }
+        .btn-premium:hover:not(:disabled) { 
+            background: #0a0a0a; 
+            border-color: #7c3aed;
+            color: #ffffff;
+            box-shadow: 0 0 25px rgba(124, 58, 237, 0.4); 
+        }
+        .btn-premium:hover:not(:disabled)::before { left: 100%; }
+        .btn-premium:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* Botões Secundários/Opções */
+        .option-btn {
+            background: transparent;
+            border: 1px solid #1a1a1a;
+            color: #a1a1aa;
+            transition: all 0.3s;
+        }
+        .option-btn:hover { border-color: #333333; color: #ffffff; background: #050505; }
+        .option-btn.selected { border-color: #06b6d4; color: #06b6d4; background: rgba(6, 182, 212, 0.1); }
+
+        /* Tela de Feedback (Totalmente Preta) */
+        .feedback-overlay {
+            position: fixed; inset: 0; background: #000000; z-index: 200;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.5s;
+        }
+        .feedback-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        /* Utilitários Extras */
+        .text-gradient {
+            background: linear-gradient(to right, #ffffff, #666666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .shake-err { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(4px); } 30%, 50%, 70% { transform: translateX(-8px); } 40%, 60% { transform: translateX(8px); } }
+    </style>
+</head>
+<body class="antialiased font-sans flex bg-black"> <!-- Uso direto de bg-black para redundância -->
+
+    <!-- BARRA LATERAL (SIDEBAR) -->
+    <aside class="w-20 md:w-24 glass-panel flex flex-col items-center py-8 flex-shrink-0 z-20 relative">
+        <div class="w-12 h-12 rounded-lg bg-[#050505] flex items-center justify-center text-white text-xl mb-12 border border-[#1a1a1a] hover:bg-[#0a0a0a] transition-colors cursor-pointer">
+            <i class="fa-solid fa-layer-group"></i>
+        </div>
+        <nav class="flex flex-col gap-10 text-zinc-600">
+            <a href="#" class="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] text-xl hover:scale-110 transition-transform"><i class="fa-solid fa-id-card-clip"></i></a>
+            <a href="#" class="hover:text-zinc-400 transition-colors text-xl hover:scale-110"><i class="fa-solid fa-headphones"></i></a>
+            <a href="#" class="hover:text-zinc-400 transition-colors text-xl hover:scale-110"><i class="fa-solid fa-microphone-lines"></i></a>
+        </nav>
+    </aside>
+
+    <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
+    <main class="flex-1 overflow-y-auto relative z-10 p-8 md:p-14 lg:p-20 bg-black">
+        
+        <!-- Cabeçalho -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-20 fade-in-up" style="animation-delay: 0.1s;">
+            <div>
+                <h1 class="text-4xl md:text-6xl font-black tracking-tighter text-white mb-2">Skill <span class="text-gradient">Matrix</span></h1>
+                <p class="text-[0.7rem] font-mono text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-3">
+                    <i class="fa-solid fa-circle-nodes text-[#7c3aed]"></i> A1 Level // Abilities & Limitations
+                </p>
+            </div>
+            <div class="hidden md:flex font-mono text-[0.65rem] text-zinc-500 border border-[#1a1a1a] bg-[#050505] px-5 py-2.5 rounded-md uppercase tracking-[0.2em] items-center gap-3">
+                <span class="w-1.5 h-1.5 bg-[#059669] rounded-full animate-pulse"></span> System Online
+            </div>
+        </header>
+
+        <div class="max-w-6xl mx-auto">
+            
+            <!-- MÓDULOS DE TREINAMENTO (DISTINTIVOS) -->
+            <div class="mb-16 fade-in-up" style="animation-delay: 0.2s;">
+                <h3 class="text-[0.65rem] font-mono text-zinc-600 uppercase tracking-[0.2em] mb-6 pl-1">Isolated Training Protocols</h3>
+                <div class="flex flex-wrap gap-4">
+                    <button class="skill-badge" onclick="openLab('scanner', 'Vocabulary Scanner')">
+                        <i class="fa-solid fa-eye text-[#06b6d4]"></i> Vocabulary Scanner (6)
+                    </button>
+                    <button class="skill-badge" onclick="openLab('analyzer', 'Profile Analysis')">
+                        <i class="fa-solid fa-fingerprint text-[#7c3aed]"></i> Profile Analysis (4)
+                    </button>
+                    <button class="skill-badge" onclick="openLab('syntax', 'Logic Builder')">
+                        <i class="fa-solid fa-cubes-stacked text-zinc-400"></i> Logic Builder (6)
+                    </button>
+                    <button class="skill-badge" onclick="openLab('bug', 'Anomaly Detector')">
+                        <i class="fa-solid fa-bug text-[#e11d48]"></i> Anomaly Detector (4)
+                    </button>
+                    <button class="skill-badge" onclick="openLab('speaking', 'Interview Simulator')">
+                        <i class="fa-solid fa-microphone text-[#fbbf24]"></i> Interview Simulator (5)
+                    </button>
+                </div>
+            </div>
+
+            <!-- CARTÃO DE DESTAQUE (HERO) -->
+            <div class="hero-card p-10 md:p-16 flex flex-col md:flex-row items-center gap-16 fade-in-up" style="animation-delay: 0.3s;">
+                <div class="w-48 h-48 rounded-full border border-[#1a1a1a] flex items-center justify-center flex-shrink-0 relative bg-black">
+                    <!-- Efeitos Circulares (Cores rigorosamente escuras) -->
+                    <div class="absolute inset-0 rounded-full border border-[#111111] animate-[spin_8s_linear_infinite]"></div>
+                    <div class="absolute inset-4 rounded-full border border-[#7c3aed]/20 animate-[spin_6s_linear_infinite_reverse]"></div>
+                    <i class="fa-solid fa-user-astronaut text-7xl text-zinc-300"></i>
+                </div>
+                
+                <div class="flex-grow z-10">
+                    <div class="text-[0.65rem] font-mono text-zinc-400 bg-[#050505] px-4 py-2 rounded inline-flex items-center gap-3 uppercase tracking-[0.2em] mb-6 border border-[#1a1a1a]">
+                        <i class="fa-solid fa-key text-[#fbbf24]"></i> Primary Mission
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-light mb-6 tracking-tight text-white leading-tight">What <span class="font-bold">can you do?</span></h2>
+                    <p class="text-zinc-400 text-sm md:text-base max-w-2xl mb-10 leading-relaxed font-light">
+                        Master the expression of talents and limitations using <strong class="text-white font-medium">"I can"</strong> (Affirmative), <strong class="text-white font-medium">"I can't"</strong> (Negative) and formulate powerful questions with <strong class="text-white font-medium">"Can you...?"</strong>. Prepare for the Final Interview.
+                    </p>
+                    <button onclick="openLab('full', 'Full Agent Training')" class="btn-premium">
+                        Start Full Training [25]
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ==========================================
+         SISTEMA DE LABORATÓRIO (MODAL)
+         ========================================== -->
+    <div id="lab-overlay" class="lab-overlay">
+        <div class="lab-container">
+            <!-- Cabeçalho do Laboratório -->
+            <div class="flex justify-between items-center mb-12 border-b border-[#1a1a1a] pb-8">
+                <div class="flex items-center gap-6">
+                    <div class="w-12 h-12 bg-[#050505] rounded-lg flex items-center justify-center border border-[#1a1a1a] text-white">
+                        <i class="fa-solid fa-microchip text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-light tracking-tight text-white" id="lab-title">Module Name</h2>
+                        <div class="flex items-center gap-3 mt-2 font-mono text-[0.6rem] text-zinc-500 uppercase tracking-[0.2em]">
+                            Phase <span id="q-current" class="text-white font-bold">1</span> / <span id="q-total">10</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closeLab()" class="text-zinc-600 hover:text-white bg-transparent w-12 h-12 rounded-full transition-colors flex items-center justify-center text-xl hover:bg-[#050505] border border-transparent hover:border-[#1a1a1a]">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Barra de Progresso Ultrafina -->
+            <div class="w-full h-[2px] bg-[#111111] mb-16 relative overflow-hidden rounded-full">
+                <div class="absolute top-0 left-0 h-full bg-[#06b6d4] transition-all duration-700 ease-out shadow-[0_0_10px_rgba(6,182,212,0.5)]" id="progress-bar" style="width: 0%;"></div>
+            </div>
+
+            <!-- Área Dinâmica de Exercício -->
+            <div id="exercise-area" class="flex-grow flex flex-col justify-center items-center w-full min-h-[400px]">
+                <!-- Conteúdo injetado via JS -->
+            </div>
+
+            <!-- Rodapé / Ação -->
+            <div class="mt-16 flex justify-end border-t border-[#1a1a1a] pt-8 w-full">
+                <button id="verify-btn" onclick="checkAnswer()" class="btn-premium w-full md:w-auto" disabled>
+                    Submit Answer
+                </button>
+            </div>
+        </div>
+
+        <!-- Tela de Feedback (Sucesso/Erro) 100% PRETA -->
+        <div id="feedback-overlay" class="feedback-overlay">
+            <div id="fb-icon" class="mb-10"></div>
+            <h2 id="fb-title" class="text-3xl md:text-5xl font-light tracking-tight mb-6 text-center text-white"></h2>
+            <div class="bg-[#050505] border border-[#1a1a1a] p-8 rounded-xl max-w-lg w-full text-center mb-12 shadow-[0_0_50px_rgba(0,0,0,1)]">
+                <p id="fb-msg" class="text-base font-light text-zinc-400 leading-relaxed"></p>
+            </div>
+            <button onclick="nextQuestion()" class="btn-premium">
+                Next Phase
+            </button>
+        </div>
+    </div>
+
+    <!-- Lógica da Aplicação (Comentários em PT-BR) -->
+    <script>
+        // BANCO DE DADOS DE EXERCÍCIOS (A1 - can/can't)
+        const db = {
+            'scanner': [
+                { type: 'match', q: "Identify the ability:", target: "Rock-climb", options: [{t:"Cook", i:"fa-fire-burner"}, {t:"Rock-climb", i:"fa-mountain"}, {t:"Swim", i:"fa-person-swimming"}], a: 1, feedback: "Correct. Rock-climbing is an extreme sport." },
+                { type: 'match', q: "Identify the ability:", target: "Play the guitar", options: [{t:"Play the guitar", i:"fa-guitar"}, {t:"Play the trumpet", i:"fa-music"}, {t:"Sing", i:"fa-microphone"}], a: 0, feedback: "Verified. 'Play the guitar'." },
+                { type: 'match', q: "Identify the ability:", target: "Juggle", options: [{t:"Dance", i:"fa-person-walking"}, {t:"Drive", i:"fa-car"}, {t:"Juggle", i:"fa-bowling-ball"}], a: 2, feedback: "Confirmed. Juggling requires coordination." },
+                { type: 'match', q: "Identify the ability:", target: "Snowboard", options: [{t:"Swim", i:"fa-person-swimming"}, {t:"Snowboard", i:"fa-person-snowboarding"}, {t:"Cook pasta", i:"fa-utensils"}], a: 1, feedback: "Perfect. You need snow to snowboard." },
+                { type: 'match', q: "Identify the ability:", target: "Drive a truck", options: [{t:"Drive a car", i:"fa-car"}, {t:"Drive a truck", i:"fa-truck"}, {t:"Ride a bike", i:"fa-bicycle"}], a: 1, feedback: "Correct. 'Drive a truck'." },
+                { type: 'match', q: "Identify the ability:", target: "Speak Spanish", options: [{t:"Sing", i:"fa-music"}, {t:"Speak Spanish", i:"fa-language"}, {t:"Dance", i:"fa-person"}], a: 1, feedback: "Verified. 'Speak Spanish'." }
+            ],
+            'analyzer': [
+                { type: 'profile', name: "Agent Sarah", avatar: "fa-user-nurse", skills: [{s:"Swim", c:true}, {s:"Cook", c:false}, {s:"Drive", c:true}], q: "Can Sarah cook?", options: ["Yes, she can.", "No, she can't."], a: 1, feedback: "Correct. She lacks the ability to cook." },
+                { type: 'profile', name: "Agent Marcus", avatar: "fa-user-ninja", skills: [{s:"Rock-climb", c:true}, {s:"Sing", c:true}, {s:"Speak Spanish", c:false}], q: "Can Marcus speak Spanish?", options: ["Yes, he can.", "No, he can't."], a: 1, feedback: "Confirmed. Marcus cannot speak Spanish." },
+                { type: 'profile', name: "Agent Elena", avatar: "fa-user-astronaut", skills: [{s:"Play the drums", c:true}, {s:"Snowboard", c:true}], q: "Can Elena play the drums?", options: ["Yes, she can.", "No, she can't."], a: 0, feedback: "Verified. Yes, she can." },
+                { type: 'profile', name: "Agent Tim", avatar: "fa-user-tie", skills: [{s:"Juggle", c:false}, {s:"Drive a truck", c:true}], q: "Can Tim drive a truck?", options: ["Yes, he can.", "No, he can't."], a: 0, feedback: "Spot on. He can drive a truck." }
+            ],
+            'syntax': [
+                { type: 'build', q: "Build the sentence: I have the ability to sing.", words: ["I", "can", "sing."], a: ["I", "can", "sing."], feedback: "Perfect. Basic affirmative structure established." },
+                { type: 'build', q: "Build the sentence: I do not have the ability to drive.", words: ["I", "can't", "drive."], a: ["I", "can't", "drive."], feedback: "Excellent. 'Can't' is the negative form." },
+                { type: 'build', q: "Build the question: Are you able to swim?", words: ["Can", "you", "swim?"], a: ["Can", "you", "swim?"], feedback: "Spot on. Questions start with 'Can'." },
+                { type: 'build', q: "Build the sentence: She is able to cook pasta.", words: ["She", "can", "cook", "pasta."], a: ["She", "can", "cook", "pasta."], feedback: "Correct. No 's' is needed after 'can' (She can, NOT she cans)." },
+                { type: 'build', q: "Build the sentence: They do not know how to juggle.", words: ["They", "can't", "juggle."], a: ["They", "can't", "juggle."], feedback: "Confirmed. Subject + can't + verb." },
+                { type: 'build', q: "Build the question: Are you able to play a musical instrument?", words: ["Can", "you", "play", "a", "musical", "instrument?"], a: ["Can", "you", "play", "a", "musical", "instrument?"], feedback: "Perfect question structure." }
+            ],
+            'bug': [
+                { type: 'hunt', q: "Find the Grammar Anomaly:", sentence: ["I", "cans", "play", "the", "guitar."], a: 1, fix: "can", feedback: "Anomaly fixed. 'Can' never takes an 's'. -> I can play." },
+                { type: 'hunt', q: "Find the Grammar Anomaly:", sentence: ["She", "don't can", "drive", "a", "truck."], a: 1, fix: "can't", feedback: "Anomaly fixed. The negative is 'can't', we don't use 'don't'. -> She can't drive." },
+                { type: 'hunt', q: "Find the Grammar Anomaly:", sentence: ["Can", "you", "to", "cook", "pasta?"], a: 2, fix: "(remove)", feedback: "Anomaly fixed. Never use 'to' after 'can'. -> Can you cook?" },
+                { type: 'hunt', q: "Find the Grammar Anomaly:", sentence: ["He", "can", "swims", "very", "fast."], a: 2, fix: "swim", feedback: "Anomaly fixed. The main verb after 'can' stays in the base form. No 's'. -> He can swim." }
+            ],
+            'speaking': [
+                { type: 'voice', icon: "fa-question", prompt: "Ask your partner if they can play the guitar.", hint: "Start with 'Can you...'", starter: "Can you play the guitar?" },
+                { type: 'voice', icon: "fa-check", prompt: "Answer affirmatively: Can you speak Spanish?", hint: "Use 'Yes, I can...'", starter: "Yes, I can speak Spanish." },
+                { type: 'voice', icon: "fa-xmark", prompt: "Answer negatively: Can you juggle?", hint: "Use 'No, I can't...'", starter: "No, I can't juggle." },
+                { type: 'voice', icon: "fa-mountain", prompt: "Tell us a limitation. What is something difficult for you?", hint: "Use 'I can't...'", starter: "I can't rock-climb." },
+                { type: 'voice', icon: "fa-star", prompt: "Tell us a talent. What can you do well?", hint: "Use 'I can...'", starter: "I can cook pasta very well." }
+            ]
+        };
+
+        db['full'] = [...db['scanner'], ...db['analyzer'], ...db['syntax'], ...db['bug'], ...db['speaking']];
+
+        // Estado do Laboratório (Variáveis globais)
+        let currentModule = [];
+        let currentIndex = 0;
+        let selectedOption = null;
+        let buildSelection = [];
+
+        function openLab(moduleId, title) {
+            if(!db[moduleId]) return;
+            currentModule = db[moduleId];
+            currentIndex = 0;
+            document.getElementById('lab-title').innerText = title;
+            document.getElementById('q-total').innerText = currentModule.length;
+            document.getElementById('lab-overlay').classList.add('active');
+            renderQuestion();
+        }
+
+        function closeLab() {
+            document.getElementById('lab-overlay').classList.remove('active');
+            document.getElementById('feedback-overlay').classList.remove('active');
+        }
+
+        function renderQuestion() {
+            const ex = currentModule[currentIndex];
+            const area = document.getElementById('exercise-area');
+            const btn = document.getElementById('verify-btn');
+            const progress = document.getElementById('progress-bar');
+            
+            btn.disabled = true;
+            btn.parentElement.classList.remove('hidden');
+            btn.innerHTML = 'Submit Answer';
+            
+            selectedOption = null;
+            buildSelection = [];
+
+            document.getElementById('q-current').innerText = currentIndex + 1;
+            progress.style.width = `${((currentIndex) / currentModule.length) * 100}%`;
+
+            let html = '<div class="w-full max-w-4xl flex flex-col items-center fade-in-up">';
+
+            // Tipo: Scanner (Múltipla escolha / Correspondência)
+            if (ex.type === 'match') {
+                html += `<div class="mb-14 text-center">
+                            <h2 class="text-3xl md:text-5xl font-light mb-4 text-zinc-400">${ex.q}</h2>
+                            <p class="text-3xl md:text-4xl font-bold text-white tracking-wide">"${ex.target}"</p>
+                         </div>
+                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">`;
+                ex.options.forEach((opt, i) => {
+                    html += `<div onclick="selectOption(${i}, this)" class="option-tile">
+                                <i class="fa-solid ${opt.i}"></i>
+                                <span class="font-light text-xl text-zinc-300 tracking-wide">${opt.t}</span>
+                             </div>`;
+                });
+                html += `</div>`;
+            }
+            
+            // Tipo: Análise de Perfil
+            else if (ex.type === 'profile') {
+                html += `
+                <div class="flex flex-col md:flex-row gap-16 items-center justify-center w-full">
+                    <div class="profile-card relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-[#0a0a0a]"></div>
+                        <div class="text-center mb-10 border-b border-[#1a1a1a] pb-8">
+                            <div class="w-20 h-20 bg-[#050505] rounded-full mx-auto mb-6 flex items-center justify-center text-3xl text-zinc-400 border border-[#1a1a1a]"><i class="fa-solid ${ex.avatar}"></i></div>
+                            <h3 class="text-xl font-bold text-white tracking-widest uppercase">${ex.name}</h3>
+                            <p class="text-[0.6rem] font-mono text-zinc-600 mt-2 tracking-[0.2em]">CLEARANCE: LEVEL 1</p>
+                        </div>
+                        <div class="space-y-4">
+                            <p class="text-[0.65rem] font-mono text-zinc-600 mb-4 tracking-widest uppercase">Known Abilities</p>
+                            ${ex.skills.map(s => `
+                                <div class="flex items-center justify-between bg-[#000000] p-4 rounded-md border border-[#1a1a1a]">
+                                    <span class="font-light text-zinc-300">${s.s}</span>
+                                    ${s.c ? '<i class="fa-solid fa-check text-[#059669]"></i>' : '<i class="fa-solid fa-xmark text-zinc-600"></i>'}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="flex-1 flex flex-col justify-center items-center md:items-start text-center md:text-left">
+                        <h2 class="text-3xl md:text-4xl font-light text-white mb-10 leading-tight">${ex.q}</h2>
+                        <div class="flex flex-col gap-4 w-full max-w-sm mx-auto md:mx-0">
+                            ${ex.options.map((opt, i) => `
+                                <button onclick="selectOption(${i}, this)" class="option-btn text-left px-8 py-5 rounded-lg font-light text-lg w-full bg-[#050505]">${opt}</button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            // Tipo: Construção de Frases (Sintaxe)
+            else if (ex.type === 'build') {
+                html += `<h2 class="text-2xl md:text-4xl font-light mb-12 text-center text-zinc-400">${ex.q}</h2>`;
+                html += `<div id="build-zone" class="w-full min-h-[120px] bg-[#050505] border border-dashed border-[#1a1a1a] rounded-xl p-6 flex flex-wrap justify-center items-center gap-3 mb-14"></div>`;
+                html += `<div id="word-bank" class="flex flex-wrap justify-center gap-3 w-full">`;
+                let shuffled = [...ex.words].sort(() => Math.random() - 0.5);
+                shuffled.forEach((word) => {
+                    html += `<div onclick="toggleSyntax(this)" class="syntax-word" data-word="${word.replace(/"/g, '&quot;')}">${word}</div>`;
+                });
+                html += `</div>`;
+                html += `<div class="text-center mt-12"><button onclick="renderQuestion()" class="text-[0.7rem] text-zinc-600 hover:text-white uppercase tracking-widest font-mono transition-colors"><i class="fa-solid fa-rotate-right mr-2"></i> Reset Sequence</button></div>`;
+            }
+
+            // Tipo: Caça aos Erros (Bugs)
+            else if (ex.type === 'hunt') {
+                html += `<div class="text-center mb-16">
+                            <h2 class="text-3xl md:text-4xl font-light text-white mb-4">${ex.q}</h2>
+                            <p class="text-sm font-light text-zinc-600">Analyze the syntax and select the anomaly.</p>
+                         </div>`;
+                html += `<div class="bg-[#050505] border border-[#1a1a1a] p-10 rounded-xl w-full max-w-3xl mx-auto text-center bug-scanner">`;
+                ex.sentence.forEach((word, i) => {
+                    html += `<span onclick="selectBug(${i}, this)" class="bug-word inline-block">${word}</span>`;
+                });
+                html += `</div>`;
+            }
+
+            // Tipo: Fala (Simulação de Voz)
+            else if (ex.type === 'voice') {
+                btn.disabled = false;
+                btn.innerHTML = 'Voice Recorded <i class="fa-solid fa-microphone ml-2"></i>';
+
+                html += `
+                <div class="bg-[#050505] border border-[#1a1a1a] rounded-2xl w-full max-w-2xl p-12 text-center relative shadow-[0_0_30px_rgba(0,0,0,1)]">
+                    <div class="absolute top-6 right-8 text-[0.65rem] text-[#e11d48] animate-pulse font-mono flex items-center gap-2 tracking-widest uppercase"><div class="w-1.5 h-1.5 bg-[#e11d48] rounded-full"></div> Rec</div>
+                    
+                    <div class="w-20 h-20 rounded-full bg-[#000000] text-zinc-400 flex items-center justify-center text-3xl mx-auto mb-10 border border-[#1a1a1a]">
+                        <i class="fa-solid ${ex.icon}"></i>
+                    </div>
+                    
+                    <h2 class="text-2xl md:text-3xl font-light text-white mb-6 leading-tight">${ex.prompt}</h2>
+                    <p class="text-zinc-600 text-sm font-light mb-12">Hint: ${ex.hint}</p>
+                    
+                    <button onclick="document.getElementById('starter-box').classList.remove('hidden'); this.classList.add('hidden')" class="text-[0.7rem] font-mono text-zinc-500 hover:text-white tracking-widest uppercase transition-colors border-b border-zinc-700 hover:border-white pb-1">
+                        Reveal Suggested Answer
+                    </button>
+
+                    <div id="starter-box" class="hidden mt-8 border-l border-[#1a1a1a] pl-6 text-left max-w-md mx-auto">
+                        <p class="text-[0.6rem] text-zinc-600 mb-3 font-mono uppercase tracking-[0.2em]">Starter Pattern</p>
+                        <p class="text-2xl font-light text-white">" ${ex.starter} "</p>
+                    </div>
+                </div>`;
+            }
+
+            html += '</div>';
+            area.innerHTML = html;
+        }
+
+        // Lógica de Seleção para Múltipla Escolha e Bugs
+        function selectOption(index, el) {
+            document.querySelectorAll('.option-tile, .option-btn').forEach(b => {
+                b.classList.remove('selected');
+            });
+            el.classList.add('selected');
+            selectedOption = index;
+            document.getElementById('verify-btn').disabled = false;
+        }
+
+        function selectBug(index, el) {
+            document.querySelectorAll('.bug-word').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedOption = index;
+            document.getElementById('verify-btn').disabled = false;
+        }
+
+        // Alternar palavras na Construção de Sintaxe
+        function toggleSyntax(el) {
+            const word = el.getAttribute('data-word');
+            const zone = document.getElementById('build-zone');
+            const btn = document.getElementById('verify-btn');
+            const ex = currentModule[currentIndex];
+            
+            if (el.parentElement.id === 'word-bank') {
+                zone.appendChild(el);
+                buildSelection.push(word);
+                el.classList.add('used');
+            } else {
+                document.getElementById('word-bank').appendChild(el);
+                buildSelection = buildSelection.filter(w => w !== word);
+                el.classList.remove('used');
+            }
+
+            if (buildSelection.length === ex.words.length) {
+                btn.disabled = false;
+                zone.style.borderColor = '#06b6d4';
+            } else {
+                btn.disabled = true;
+                zone.style.borderColor = '#1a1a1a';
+            }
+        }
+
+        // Verificação de Respostas
+        function checkAnswer() {
+            const ex = currentModule[currentIndex];
+            let isCorrect = false;
+
+            if (ex.type === 'match' || ex.type === 'profile' || ex.type === 'hunt') isCorrect = (selectedOption === ex.a);
+            else if (ex.type === 'build') isCorrect = JSON.stringify(buildSelection) === JSON.stringify(ex.a);
+            else if (ex.type === 'voice') isCorrect = true; 
+
+            if (isCorrect) showFeedback(true, ex.feedback || "Verified. Pronunciation and structure align with parameters.");
+            else showFeedback(false, "System mismatch. Remember: 'can' for affirmative, 'can't' for negative. Never add 's' to the main verb.");
+        }
+
+        // Exibir a Tela de Feedback de Sucesso/Erro
+        function showFeedback(isSuccess, msg) {
+            const overlay = document.getElementById('feedback-overlay');
+            const area = document.getElementById('exercise-area');
+            
+            if(isSuccess) {
+                document.getElementById('fb-icon').innerHTML = `<i class="fa-solid fa-check text-5xl text-[#059669] opacity-90"></i>`;
+                document.getElementById('fb-title').innerText = "Access Granted";
+                document.getElementById('fb-title').className = "text-4xl md:text-5xl font-light tracking-tight mb-4 text-center text-white";
+                document.getElementById('fb-msg').innerText = msg;
+                overlay.classList.add('active');
+            } else {
+                document.getElementById('fb-icon').innerHTML = `<i class="fa-solid fa-xmark text-5xl text-[#e11d48] opacity-90"></i>`;
+                document.getElementById('fb-title').innerText = "Protocol Error";
+                document.getElementById('fb-title').className = "text-4xl md:text-5xl font-light tracking-tight mb-4 text-center text-[#e11d48]";
+                document.getElementById('fb-msg').innerText = msg;
+                overlay.classList.add('active');
+                
+                // Animação de erro (shake)
+                area.classList.add('shake-err');
+                setTimeout(() => area.classList.remove('shake-err'), 500);
+            }
+        }
+
+        // Avançar para a próxima fase do módulo
+        function nextQuestion() {
+            document.getElementById('feedback-overlay').classList.remove('active');
+            currentIndex++;
+            if (currentIndex < currentModule.length) {
+                renderQuestion();
+            } else {
+                showFinal();
+            }
+        }
+
+        // Mostrar a Tela Final de Conclusão do Laboratório
+        function showFinal() {
+            document.getElementById('progress-bar').style.width = "100%";
+            document.getElementById('verify-btn').parentElement.classList.add('hidden');
+
+            document.getElementById('exercise-area').innerHTML = `
+                <div class="text-center fade-in-up flex flex-col items-center py-10 w-full max-w-2xl">
+                    <div class="w-24 h-24 border border-[#1a1a1a] rounded-full flex items-center justify-center mb-10 bg-[#050505] shadow-[0_0_30px_rgba(0,0,0,1)]">
+                        <i class="fa-solid fa-check-double text-4xl text-[#06b6d4]"></i>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-light text-white mb-6 tracking-tight">System <span class="font-bold">Updated</span></h1>
+                    <p class="text-zinc-500 text-sm md:text-base leading-relaxed mb-12 max-w-lg font-light">
+                        Training sequence finalized. You have successfully mapped expressions of ability and limitation. Your language core has been upgraded.
+                    </p>
+                    
+                    <div class="w-full bg-[#050505] border border-[#1a1a1a] p-8 rounded-xl text-left mb-12 shadow-[0_0_50px_rgba(0,0,0,1)]">
+                        <h4 class="text-zinc-600 uppercase text-[0.65rem] tracking-[0.2em] font-mono mb-6 pb-4 border-b border-[#1a1a1a]">Performance Metrics</h4>
+                        <ul class="text-sm text-zinc-400 space-y-5 font-light">
+                            <li class="flex justify-between items-center">
+                                <span>Grammar Matrix [Can/Can't]</span> 
+                                <span class="text-white font-mono text-xs tracking-widest">100%</span>
+                            </li>
+                            <li class="flex justify-between items-center">
+                                <span>Action Lexicon</span> 
+                                <span class="text-white font-mono text-xs tracking-widest">VERIFIED</span>
+                            </li>
+                            <li class="flex justify-between items-center">
+                                <span>Oral Production</span> 
+                                <span class="text-[#059669] font-mono text-xs tracking-widest font-bold">SYNCED</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button onclick="closeLab()" class="btn-premium">
+                        Close Terminal
+                    </button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
